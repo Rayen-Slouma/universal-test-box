@@ -10,12 +10,14 @@ A modern web application for managing modular test boxes used in predictive main
   - **Maintenance Manager**: Full system access including analytics and user management
 - Secure authentication with session management
 - Permission-based UI rendering
+- Complete user management interface with role assignment
 
 ### Machine Management
 - Comprehensive machine database with detailed information
 - Real-time status tracking (Operational, Maintenance, Failure, Offline)
 - Maintenance scheduling and history
 - Machine type categorization and filtering
+- Advanced search and filtering capabilities
 
 ### Test Sessions
 - Create and manage data collection sessions
@@ -23,6 +25,7 @@ A modern web application for managing modular test boxes used in predictive main
 - Real-time session monitoring
 - Configurable sampling frequencies
 - Session history and analytics
+- Multi-sensor data collection interface
 
 ### Sensor Modules
 Support for 19+ sensor types including:
@@ -39,16 +42,33 @@ Support for 19+ sensor types including:
 ### Failure Management
 - Comprehensive failure reporting system
 - Severity classification (Low, Medium, High, Critical)
-- Category-based organization
+- Category-based organization (Mechanical, Electrical, Hydraulic, etc.)
 - Maintenance action tracking
 - Resolution workflow management
+- Full failure lifecycle management
 
 ### Analytics & Predictive Maintenance
-- Machine uptime monitoring
-- Performance metrics dashboard
-- Predictive analysis alerts
-- Historical data visualization
+- Machine uptime monitoring and performance metrics
+- Performance metrics dashboard with cost analysis
+- Predictive analysis alerts with confidence ratings
+- Historical data visualization and trends
 - Maintenance efficiency tracking
+- ROI calculation from predictive maintenance
+
+### Alert Management
+- Real-time system alerts and notifications
+- Alert prioritization by severity (Info, Warning, Error, Critical)
+- Alert categorization (Sensor Threshold, Predictive Maintenance, Failure Detection)
+- Alert resolution workflow
+- Notification management and assignment
+
+### Knowledge Base
+- Comprehensive troubleshooting guides and procedures
+- Searchable documentation with categories and tags
+- Step-by-step maintenance procedures
+- Symptom-to-solution mapping
+- User ratings and view tracking
+- Rich content with markdown support
 
 ### Data Export & Reporting
 - Multiple export formats (CSV, Excel, PDF, JSON)
@@ -106,6 +126,11 @@ src/
 │   ├── dashboard/         # Dashboard page
 │   ├── machines/          # Machine management
 │   ├── sessions/          # Test sessions
+│   ├── failures/          # Failure management
+│   ├── analytics/         # Analytics and insights
+│   ├── alerts/            # Alert management
+│   ├── users/             # User management
+│   ├── knowledge-base/    # Knowledge base
 │   ├── login/            # Authentication
 │   └── layout.tsx        # Root layout
 ├── components/           # Reusable components
@@ -139,11 +164,35 @@ src/
 - Configurable parameters
 - Session history tracking
 
-### Dashboard
+### Failure Management
+- Comprehensive failure tracking
+- Severity and category classification
+- Resolution workflow
+- Maintenance action logging
+
+### Analytics Dashboard
 - System overview with key metrics
-- Recent activity monitoring
-- Alert management
-- Performance indicators
+- Performance trends and insights
+- Cost analysis and ROI tracking
+- Predictive maintenance alerts
+
+### Alert Management
+- Real-time notification system
+- Severity-based prioritization
+- Alert resolution workflow
+- Assignment and tracking
+
+### Knowledge Base
+- Searchable documentation
+- Troubleshooting guides
+- Procedure documentation
+- Community ratings and feedback
+
+### User Management
+- Role assignment and management
+- User activity tracking
+- Permission management
+- Account lifecycle management
 
 ## 🔧 Configuration
 
