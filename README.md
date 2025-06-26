@@ -1,36 +1,182 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Universal Test Box - Predictive Maintenance System
 
-## Getting Started
+A modern web application for managing modular test boxes used in predictive maintenance of industrial equipment. Built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## 🚀 Features
 
+### User Management & Authentication
+- **Role-based access control** with two user types:
+  - **Technician**: Can view machines, create test sessions, report failures
+  - **Maintenance Manager**: Full system access including analytics and user management
+- Secure authentication with session management
+- Permission-based UI rendering
+
+### Machine Management
+- Comprehensive machine database with detailed information
+- Real-time status tracking (Operational, Maintenance, Failure, Offline)
+- Maintenance scheduling and history
+- Machine type categorization and filtering
+
+### Test Sessions
+- Create and manage data collection sessions
+- Configure multiple sensor modules per session
+- Real-time session monitoring
+- Configurable sampling frequencies
+- Session history and analytics
+
+### Sensor Modules
+Support for 19+ sensor types including:
+- 🌡️ Temperature sensors (contact and IR)
+- 📳 Vibration sensors
+- 📷 Camera modules
+- ⏲️ Pressure sensors
+- ⚡ Current and voltage monitoring
+- 🔄 RPM sensors
+- 💧 Humidity and leak detection
+- 🧲 Magnetic field sensors
+- And many more...
+
+### Failure Management
+- Comprehensive failure reporting system
+- Severity classification (Low, Medium, High, Critical)
+- Category-based organization
+- Maintenance action tracking
+- Resolution workflow management
+
+### Analytics & Predictive Maintenance
+- Machine uptime monitoring
+- Performance metrics dashboard
+- Predictive analysis alerts
+- Historical data visualization
+- Maintenance efficiency tracking
+
+### Data Export & Reporting
+- Multiple export formats (CSV, Excel, PDF, JSON)
+- Custom date range selection
+- Filtered data exports
+- Automated report generation
+
+## 🛠️ Technology Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API
+- **Icons**: Emoji-based icons for universal compatibility
+- **Charts**: Recharts (ready for implementation)
+- **Date Handling**: date-fns
+
+## 📦 Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd universal-test-box
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## 🔐 Demo Credentials
 
-To learn more about Next.js, take a look at the following resources:
+### Technician Account
+- **Email**: tech1@testbox.com
+- **Password**: password123
+- **Permissions**: View machines, create sessions, report failures
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Maintenance Manager Account
+- **Email**: manager@testbox.com
+- **Password**: password123
+- **Permissions**: Full system access, analytics, user management
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📁 Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/                    # Next.js app router pages
+│   ├── dashboard/         # Dashboard page
+│   ├── machines/          # Machine management
+│   ├── sessions/          # Test sessions
+│   ├── login/            # Authentication
+│   └── layout.tsx        # Root layout
+├── components/           # Reusable components
+│   ├── ui/              # UI component library
+│   └── Layout.tsx       # Main application layout
+├── contexts/            # React contexts
+│   └── AuthContext.tsx  # Authentication context
+├── lib/                 # Utilities and configurations
+│   ├── utils.ts         # Helper functions
+│   └── constants.ts     # Application constants
+└── types/              # TypeScript type definitions
+    └── index.ts        # Main type definitions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎨 Key Components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Authentication System
+- Secure login with role-based access
+- Protected routes with permission checking
+- Persistent sessions with localStorage
+
+### Machine Management
+- Real-time status monitoring
+- Maintenance scheduling
+- Advanced filtering and search
+- Status-based dashboards
+
+### Test Sessions
+- Multi-sensor configuration
+- Real-time monitoring
+- Configurable parameters
+- Session history tracking
+
+### Dashboard
+- System overview with key metrics
+- Recent activity monitoring
+- Alert management
+- Performance indicators
+
+## 🔧 Configuration
+
+The application includes comprehensive configuration through constants:
+
+- **User roles and permissions**
+- **Sensor type definitions**
+- **Status options for machines and sessions**
+- **Export format options**
+- **API endpoint definitions** (ready for backend integration)
+
+## 🚀 Deployment
+
+The application is ready for deployment on platforms like Vercel, Netlify, or any hosting service that supports Next.js.
+
+```bash
+npm run build
+npm start
+```
+
+## 🔮 Future Enhancements
+
+- **Backend Integration**: REST API for data persistence
+- **Real-time Data**: WebSocket integration for live sensor data
+- **Machine Learning**: Predictive maintenance algorithms
+- **Mobile App**: React Native companion app
+- **IoT Integration**: Direct sensor communication
+- **Advanced Analytics**: Custom reporting and insights
+
+## 📄 License
+
+This project is part of a predictive maintenance system demonstration.
+
+## 🤝 Contributing
+
+This is a demonstration project for predictive maintenance systems. For production use, additional security measures and backend integration would be required.
