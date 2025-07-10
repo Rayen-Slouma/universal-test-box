@@ -24,7 +24,12 @@ const navigation: NavItem[] = [
     href: '/dashboard',
     label: 'Dashboard',
     icon: '📊',
-    permission: 'view_machines',
+  },
+  {
+    href: '/technician',
+    label: 'My Dashboard',
+    icon: '👨‍🔧',
+    roles: ['technician'],
   },
   {
     href: '/machines',
@@ -36,37 +41,41 @@ const navigation: NavItem[] = [
     href: '/sessions',
     label: 'Test Sessions',
     icon: '🔬',
-    permission: 'view_sessions',
+    permission: 'view_all_sessions', // Updated to use the broader permission
   },
   {
-    href: '/failures',
-    label: 'Failures',
-    icon: '⚠️',
-    permission: 'view_failures',
+    href: '/sessions/archived',
+    label: 'Archived Sessions',
+    icon: '📂',
+    permission: 'view_archived_sessions',
   },
   {
     href: '/analytics',
     label: 'Analytics',
     icon: '📈',
     permission: 'view_analytics',
+    roles: ['maintenance_manager'],
   },
   {
     href: '/knowledge-base',
     label: 'Knowledge Base',
     icon: '📚',
     permission: 'view_knowledge_base',
+    roles: ['maintenance_manager'],
   },
   {
     href: '/alerts',
     label: 'Alerts',
     icon: '🔔',
     permission: 'manage_alerts',
+    roles: ['maintenance_manager'],
   },
   {
     href: '/users',
     label: 'Users',
     icon: '👥',
     permission: 'manage_users',
+    roles: ['maintenance_manager'],
   },
 ];
 
@@ -80,12 +89,38 @@ export default function Layout({ children }: LayoutProps) {
   const handleLogout = () => {
     logout();
     router.push('/login');
-  };
-
-  const filteredNavigation = navigation.filter(item => {
+  };  const filteredNavigation = navigation.filter(item => {
+    // Special handling for technicians
+    if (user?.role === 'technician') {
+      // Hide the regular dashboard for technicians (they should only see "My Dashboard")
+      if (item.href === '/dashboard') {
+        return false;
+      }
+      // Allow technicians to see My Dashboard, Machines, Test Sessions, and Archived Sessions
+      if (item.href === '/technician' || item.href === '/machines' || item.href === '/sessions' || item.href === '/sessions/archived') {
+        return true;
+      }
+      // Hide manager-only items
+      if (item.roles && !item.roles.includes('technician')) {
+        return false;
+      }
+    }
+    
+    // For managers, hide the technician dashboard
+    if (user?.role === 'maintenance_manager' && item.href === '/technician') {
+      return false;
+    }
+    
+    // For managers, check role restrictions first
+    if (item.roles && user && !item.roles.includes(user.role)) {
+      return false;
+    }
+    
+    // Then check permissions if specified
     if (item.permission) {
       return hasPermission(item.permission);
     }
+    
     return true;
   });
 
@@ -198,10 +233,24 @@ export default function Layout({ children }: LayoutProps) {
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between">              <div>
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {navigation.find(item => item.href === pathname)?.label || 'Universal Test Box'}
+                  {(() => {
+                    // Try to find the current page in navigation
+                    const currentNav = navigation.find(item => item.href === pathname);
+                    if (currentNav) return currentNav.label;
+                    
+                    // Handle dynamic routes
+                    if (pathname.startsWith('/sessions/') && pathname !== '/sessions' && pathname !== '/sessions/new') {
+                      return 'Session Details';
+                    }
+                    if (pathname === '/sessions/new') return 'Create New Session';
+                    if (pathname.startsWith('/machines/')) return 'Machine Details';
+                    if (pathname.startsWith('/users/')) return 'User Management';
+                    
+                    // Default fallback
+                    return 'Universal Test Box';
+                  })()}
                 </h2>
                 <p className="text-sm text-gray-500">
                   {new Date().toLocaleDateString('en-US', {
@@ -211,8 +260,7 @@ export default function Layout({ children }: LayoutProps) {
                     day: 'numeric'
                   })}
                 </p>
-              </div>
-              <div className="flex items-center space-x-4">
+              </div>              <div className="flex items-center space-x-4">
                 {/* Quick actions */}
                 <div className="flex items-center space-x-2">
                   {hasPermission('create_sessions') && (
@@ -220,9 +268,13 @@ export default function Layout({ children }: LayoutProps) {
                       New Session
                     </Button>
                   )}
-                  {hasPermission('create_failures') && (
-                    <Button variant="outline" size="sm" onClick={() => router.push('/failures/new')}>
-                      Report Failure
+                  {user?.role === 'technician' && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => router.push('/technician')}
+                    >
+                      My Dashboard
                     </Button>
                   )}
                 </div>

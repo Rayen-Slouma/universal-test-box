@@ -16,6 +16,7 @@ import {
   FAILURE_STATUS_LABELS,
   MACHINE_STATUS_LABELS 
 } from '@/lib/constants';
+import { DataExporter } from '@/lib/export';
 
 // Mock failure data
 const mockFailures: Failure[] = [

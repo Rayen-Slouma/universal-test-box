@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatDateTime, timeAgo } from '@/lib/utils';
+import { timeAgo } from '@/lib/utils';
 
 // Mock data for dashboard
 const mockStats = {
@@ -89,6 +90,25 @@ const mockAlerts = [
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
+
+  // Redirect technicians to their specialized dashboard
+  React.useEffect(() => {
+    if (user?.role === 'technician') {
+      router.push('/technician');
+    }
+  }, [user, router]);
+
+  // Return early for technicians while redirect is happening
+  if (user?.role === 'technician') {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to technician dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -98,7 +118,7 @@ export default function DashboardPage() {
           Welcome back, {user?.name?.split(' ')[0]}!
         </h1>
         <p className="text-gray-600">
-          Here's what's happening with your maintenance operations today.
+          Here&apos;s what&apos;s happening with your maintenance operations today.
         </p>
       </div>
 

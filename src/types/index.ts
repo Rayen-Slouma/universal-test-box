@@ -67,9 +67,11 @@ export type SensorType =
 // Test Session Types
 export interface TestSession {
   id: string;
+  name: string;
   machineId: string;
   machine?: Machine;
-  technician: User;
+  createdBy: User; // Manager who created the session
+  assignedTo: User; // Technician assigned to the session
   sensors: SensorModule[];
   startTime: Date;
   endTime?: Date;
@@ -77,11 +79,55 @@ export interface TestSession {
   status: SessionStatus;
   notes?: string;
   data: SensorData[];
+  dataFiles?: SessionDataFile[]; // Uploaded data files
+  solution?: SessionSolution; // Solution submitted by technician
+  closureRequest?: SessionClosureRequest; // Closure request from technician
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type SessionStatus = 'in_progress' | 'completed' | 'cancelled' | 'error';
+// Session Data File Types
+export interface SessionDataFile {
+  id: string;
+  sessionId: string;
+  fileName: string;
+  filePath: string;
+  fileSize: number;
+  uploadedAt: Date;
+  uploadedBy: User;
+  dataFormat: 'json' | 'csv' | 'xlsx';
+  recordCount?: number;
+}
+
+export type SessionStatus = 'created' | 'assigned' | 'in_progress' | 'data_uploaded' | 'analysis_complete' | 'solution_submitted' | 'completed' | 'cancelled' | 'error';
+
+// Session Solution Types
+export interface SessionSolution {
+  id: string;
+  sessionId: string;
+  description: string;
+  stepsPerformed: string[];
+  recommendations?: string;
+  submittedBy: User;
+  submittedAt: Date;
+  reviewedBy?: User;
+  reviewedAt?: Date;
+  approved: boolean;
+}
+
+// Session Closure Request
+export interface SessionClosureRequest {
+  id: string;
+  sessionId: string;
+  requestedBy: User;
+  requestedAt: Date;
+  reason: string;
+  solutionId?: string;
+  approved?: boolean;
+  reviewedBy?: User;
+  reviewedAt?: Date;
+  comments?: string;
+}
 
 // Sensor Data Types
 export interface SensorData {

@@ -10,6 +10,7 @@ import { Select } from '@/components/ui/Select';
 import { usePermissions } from '@/contexts/AuthContext';
 import { formatDate, timeAgo } from '@/lib/utils';
 import { Machine, MachineStatus } from '@/types';
+import { DataExporter } from '@/lib/export';
 
 // Mock data for machines
 const mockMachines: Machine[] = [
@@ -138,8 +139,11 @@ export default function MachinesPage() {
       offline: stats.offline || 0,
     };
   };
-
   const stats = getStatusStats();
+
+  const handleExportMachines = (format: 'csv' | 'json') => {
+    DataExporter.exportMachines(filteredMachines, format);
+  };
 
   return (
     <div className="space-y-6">
@@ -149,11 +153,23 @@ export default function MachinesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Machines</h1>
           <p className="text-gray-600">Manage and monitor your industrial equipment</p>
         </div>
-        {hasPermission('create_machines') && (
-          <Button>
-            Add Machine
-          </Button>
-        )}
+        <div className="flex space-x-2">
+          <Select
+            value=""
+            onChange={(e) => handleExportMachines(e.target.value as 'csv' | 'json')}
+            options={[
+              { value: '', label: 'Export Data...' },
+              { value: 'csv', label: 'Export as CSV' },
+              { value: 'json', label: 'Export as JSON' },
+            ]}
+            className="w-40"
+          />
+          {hasPermission('create_machines') && (
+            <Button>
+              Add Machine
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Status Overview */}

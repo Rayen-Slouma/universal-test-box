@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { usePermissions } from '@/contexts/AuthContext';
+import { useAuth, usePermissions } from '@/contexts/AuthContext';
 import { formatDateTime, formatDuration, timeAgo } from '@/lib/utils';
 import { TestSession, SessionStatus } from '@/types';
 
@@ -15,6 +16,7 @@ import { TestSession, SessionStatus } from '@/types';
 const mockSessions: TestSession[] = [
   {
     id: '1',
+    name: 'Routine Maintenance Check - Week 27',
     machineId: '1',
     machine: {
       id: '1',
@@ -26,7 +28,15 @@ const mockSessions: TestSession[] = [
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    technician: {
+    createdBy: {
+      id: '2',
+      email: 'manager@testbox.com',
+      name: 'Manager Smith',
+      role: 'maintenance_manager',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    assignedTo: {
       id: '1',
       email: 'tech1@testbox.com',
       name: 'John Technician',
@@ -42,14 +52,34 @@ const mockSessions: TestSession[] = [
     startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     endTime: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
     samplingFrequency: 10,
-    status: 'completed',
+    status: 'analysis_complete',
     notes: 'Regular maintenance check - all parameters within normal range',
     data: [],
+    dataFiles: [
+      {
+        id: 'df1',
+        sessionId: '1',
+        fileName: 'hydraulic_data_20241127.json',
+        filePath: '/uploads/sessions/1/hydraulic_data_20241127.json',
+        fileSize: 2048576,
+        uploadedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        uploadedBy: {
+          id: '1',
+          email: 'tech1@testbox.com',
+          name: 'John Technician',
+          role: 'technician',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        dataFormat: 'json',
+        recordCount: 7200,
+      },
+    ],
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 30 * 60 * 1000),
-  },
-  {
+  },  {
     id: '2',
+    name: 'Conveyor System Monitoring',
     machineId: '2',
     machine: {
       id: '2',
@@ -61,7 +91,15 @@ const mockSessions: TestSession[] = [
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    technician: {
+    createdBy: {
+      id: '2',
+      email: 'manager@testbox.com',
+      name: 'Manager Smith',
+      role: 'maintenance_manager',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    assignedTo: {
       id: '1',
       email: 'tech1@testbox.com',
       name: 'John Technician',
@@ -73,15 +111,59 @@ const mockSessions: TestSession[] = [
       { id: '4', name: 'RPM Sensor', type: 'speed_rpm', description: 'Motor speed monitoring', isActive: true },
       { id: '5', name: 'Current Monitor', type: 'current', description: 'Motor current monitoring', isActive: true },
     ],
-    startTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+    startTime: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+    endTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
     samplingFrequency: 5,
-    status: 'in_progress',
+    status: 'solution_submitted',
+    notes: 'Belt alignment issues detected and resolved',
     data: [],
-    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 5 * 60 * 1000),
+    dataFiles: [
+      {
+        id: 'df2',
+        sessionId: '2',
+        fileName: 'conveyor_motor_data.json',
+        filePath: '/uploads/sessions/2/conveyor_motor_data.json',
+        fileSize: 1572864,
+        uploadedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        uploadedBy: {
+          id: '1',
+          email: 'tech1@testbox.com',
+          name: 'John Technician',
+          role: 'technician',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        dataFormat: 'json',
+        recordCount: 3600,
+      },
+    ],
+    solution: {
+      id: 'sol2',
+      sessionId: '2',
+      description: 'Realigned conveyor belt and adjusted motor speed controller settings.',
+      stepsPerformed: [
+        'Inspected belt alignment and found 2.5cm offset',
+        'Adjusted conveyor tensioning system',
+        'Recalibrated motor speed controller',
+        'Performed test run to verify proper operation'
+      ],
+      recommendations: 'Schedule weekly belt alignment checks',
+      submittedBy: {
+        id: '1',
+        email: 'tech1@testbox.com',
+        name: 'John Technician',
+        role: 'technician',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      submittedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+      approved: false,
+    },    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
   },
   {
     id: '3',
+    name: 'CNC Vibration Analysis',
     machineId: '3',
     machine: {
       id: '3',
@@ -93,11 +175,19 @@ const mockSessions: TestSession[] = [
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    technician: {
+    createdBy: {
       id: '2',
       email: 'manager@testbox.com',
-      name: 'Sarah Manager',
+      name: 'Manager Smith',
       role: 'maintenance_manager',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    assignedTo: {
+      id: '3',
+      email: 'tech3@testbox.com',
+      name: 'Mike Wilson',
+      role: 'technician',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -108,10 +198,10 @@ const mockSessions: TestSession[] = [
     ],
     startTime: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
     endTime: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    samplingFrequency: 20,
-    status: 'completed',
+    samplingFrequency: 20,    status: 'completed',
     notes: 'Investigating reported vibration issues - anomalies detected',
     data: [],
+    dataFiles: [],
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
   },
@@ -119,24 +209,36 @@ const mockSessions: TestSession[] = [
 
 const statusOptions = [
   { value: '', label: 'All Status' },
+  { value: 'created', label: 'Created' },
+  { value: 'assigned', label: 'Assigned' },
   { value: 'in_progress', label: 'In Progress' },
+  { value: 'data_uploaded', label: 'Data Uploaded' },
+  { value: 'analysis_complete', label: 'Analysis Complete' },
+  { value: 'solution_submitted', label: 'Solution Submitted' },
   { value: 'completed', label: 'Completed' },
   { value: 'cancelled', label: 'Cancelled' },
   { value: 'error', label: 'Error' },
 ];
 
 export default function SessionsPage() {
-  const [sessions, setSessions] = useState<TestSession[]>(mockSessions);
+  const router = useRouter();
+  const { user } = useAuth();
+  const [sessions] = useState<TestSession[]>(mockSessions);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const { hasPermission } = usePermissions();
-
   // Filter sessions based on search and filters
   const filteredSessions = sessions.filter(session => {
     const matchesSearch = session.machine?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         session.technician.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         session.machine?.serialNumber.toLowerCase().includes(searchTerm.toLowerCase());
+                         session.assignedTo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         session.machine?.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         session.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || session.status === statusFilter;
+    
+    // For technicians, only show sessions assigned to them
+    if (user?.role === 'technician') {
+      return matchesSearch && matchesStatus && session.assignedTo.id === user.id;
+    }
     
     return matchesSearch && matchesStatus;
   });
@@ -145,10 +247,13 @@ export default function SessionsPage() {
     const stats = sessions.reduce((acc, session) => {
       acc[session.status] = (acc[session.status] || 0) + 1;
       return acc;
-    }, {} as Record<SessionStatus, number>);
-
-    return {
+    }, {} as Record<SessionStatus, number>);    return {
+      created: stats.created || 0,
+      assigned: stats.assigned || 0,
       in_progress: stats.in_progress || 0,
+      data_uploaded: stats.data_uploaded || 0,
+      analysis_complete: stats.analysis_complete || 0,
+      solution_submitted: stats.solution_submitted || 0,
       completed: stats.completed || 0,
       cancelled: stats.cancelled || 0,
       error: stats.error || 0,
@@ -168,22 +273,21 @@ export default function SessionsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6">      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Test Sessions</h1>
           <p className="text-gray-600">Monitor and manage data collection sessions</p>
-        </div>
-        {hasPermission('create_sessions') && (
-          <Button>
-            New Session
+        </div>        {user?.role === 'maintenance_manager' && hasPermission('create_sessions') && (
+          <Button 
+            onClick={() => router.push('/sessions/new')}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2"
+          >
+            + Create New Session
           </Button>
         )}
-      </div>
-
-      {/* Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      </div>      {/* Status Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -192,6 +296,30 @@ export default function SessionsPage() {
                 <p className="text-2xl font-bold text-blue-600">{stats.in_progress}</p>
               </div>
               <div className="text-2xl">🔄</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Analysis Ready</p>
+                <p className="text-2xl font-bold text-orange-600">{stats.analysis_complete}</p>
+              </div>
+              <div className="text-2xl">📊</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Solution Submitted</p>
+                <p className="text-2xl font-bold text-purple-600">{stats.solution_submitted}</p>
+              </div>
+              <div className="text-2xl">🔧</div>
             </div>
           </CardContent>
         </Card>
@@ -277,11 +405,10 @@ export default function SessionsPage() {
                       <div className="font-medium text-gray-900">{session.machine?.name}</div>
                       <div className="text-sm text-gray-500">{session.machine?.location}</div>
                     </div>
-                  </TableCell>
-                  <TableCell>
+                  </TableCell>                  <TableCell>
                     <div>
-                      <div className="text-sm text-gray-900">{session.technician.name}</div>
-                      <div className="text-xs text-gray-500 capitalize">{session.technician.role.replace('_', ' ')}</div>
+                      <div className="text-sm text-gray-900">{session.assignedTo.name}</div>
+                      <div className="text-xs text-gray-500 capitalize">{session.assignedTo.role.replace('_', ' ')}</div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -313,21 +440,64 @@ export default function SessionsPage() {
                     <div className="text-sm text-gray-900">
                       {calculateDuration(session)}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="status" status={session.status}>
-                      {session.status.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                      {session.status === 'in_progress' && hasPermission('edit_sessions') && (
-                        <Button variant="danger" size="sm">
-                          Stop
+                  </TableCell>                  <TableCell>
+                    <div className="flex flex-col space-y-1">
+                      <Badge variant="status" status={session.status}>
+                        {session.status.replace('_', ' ')}
+                      </Badge>
+                      {session.solution && (
+                        <Badge variant="outline" className="text-xs">
+                          {session.solution.approved ? '✅ Solution Approved' : '⏳ Solution Pending'}
+                        </Badge>
+                      )}
+                      {session.closureRequest && (
+                        <Badge variant="outline" className="text-xs">
+                          {session.closureRequest.approved ? '🔒 Closure Approved' : '📋 Closure Requested'}
+                        </Badge>
+                      )}
+                      {session.dataFiles && session.dataFiles.length > 0 && (
+                        <Badge variant="outline" className="text-xs">
+                          📊 {session.dataFiles.length} file{session.dataFiles.length !== 1 ? 's' : ''}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>                  <TableCell>
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => router.push(`/sessions/${session.id}`)}
+                        >
+                          View Details
                         </Button>
+                        {session.status === 'in_progress' && hasPermission('edit_sessions') && (
+                          <Button variant="danger" size="sm">
+                            Stop
+                          </Button>
+                        )}
+                      </div>
+                      {user?.role === 'maintenance_manager' && (
+                        <div className="flex space-x-2">
+                          {session.solution && !session.solution.approved && hasPermission('review_solutions') && (
+                            <Button 
+                              size="sm" 
+                              className="bg-purple-600 hover:bg-purple-700 text-white text-xs"
+                              onClick={() => router.push(`/sessions/${session.id}`)}
+                            >
+                              Review Solution
+                            </Button>
+                          )}
+                          {session.closureRequest && !session.closureRequest.approved && hasPermission('close_sessions') && (
+                            <Button 
+                              size="sm" 
+                              className="bg-red-600 hover:bg-red-700 text-white text-xs"
+                              onClick={() => router.push(`/sessions/${session.id}`)}
+                            >
+                              Approve Closure
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </TableCell>

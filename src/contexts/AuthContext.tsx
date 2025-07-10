@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User, AuthState, UserRole } from '@/types';
+import { ROLE_PERMISSIONS } from '@/lib/constants';
 
 // Mock user data (replace with actual API calls)
 const MOCK_USERS = [
@@ -95,8 +96,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (savedUser) {
       try {
         const user = JSON.parse(savedUser);
-        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      } catch (error) {
+        dispatch({ type: 'LOGIN_SUCCESS', payload: user });      } catch {
         localStorage.removeItem('auth_user');
       }
     }
@@ -126,8 +126,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem('auth_user', JSON.stringify(user));
       
       dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      return { success: true };
-    } catch (error) {
+      return { success: true };    } catch {
       dispatch({ type: 'LOGIN_FAILURE' });
       return { success: false, error: 'An error occurred during login' };
     }
@@ -200,7 +199,7 @@ export function withAuth<P extends object>(
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-            <p className="text-gray-600">You don't have permission to access this page.</p>
+            <p className="text-gray-600">You don&apos;t have permission to access this page.</p>
           </div>
         </div>
       );
@@ -217,43 +216,8 @@ export function usePermissions() {
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;
     
-    // Mock permission check (in a real app, this would come from your backend)
-    const rolePermissions: Record<UserRole, string[]> = {
-      technician: [
-        'view_machines',
-        'create_sessions',
-        'view_sessions',
-        'create_failures',
-        'view_failures',
-        'view_own_data',
-        'export_basic_data',
-      ],
-      maintenance_manager: [
-        'view_machines',
-        'create_machines',
-        'edit_machines',
-        'delete_machines',
-        'create_sessions',
-        'view_sessions',
-        'edit_sessions',
-        'delete_sessions',
-        'create_failures',
-        'view_failures',
-        'edit_failures',
-        'delete_failures',
-        'view_all_data',
-        'view_analytics',
-        'manage_users',
-        'manage_sensors',
-        'export_all_data',
-        'view_knowledge_base',
-        'edit_knowledge_base',
-        'manage_alerts',
-        'view_system_logs',
-      ],
-    };
-
-    return rolePermissions[user.role]?.includes(permission) || false;
+    const userPermissions = ROLE_PERMISSIONS[user.role as keyof typeof ROLE_PERMISSIONS] as readonly string[] || [];
+    return userPermissions.includes(permission);
   };
 
   const hasRole = (role: UserRole): boolean => {
